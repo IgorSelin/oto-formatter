@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Конвертація аудіограми в NHAX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background: linear-gradient(120deg, #e0eafc, #cfdef3);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: #fff;
+            padding: 2.5rem 2rem 2rem 2rem;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #2d3a4b;
+            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
+        }
+        .file-input {
+            display: none;
+        }
+        .custom-file-label {
+            display: inline-block;
+            padding: 0.7rem 1.2rem;
+            background: #f0f4fa;
+            color: #2d3a4b;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px dashed #b0b8c1;
+            margin-bottom: 1.2rem;
+            transition: background 0.2s, border 0.2s;
+        }
+        .custom-file-label:hover {
+            background: #e6f0ff;
+            border-color: #6ca0dc;
+        }
+        .file-name {
+            margin-bottom: 1.2rem;
+            color: #6ca0dc;
+            font-size: 1rem;
+        }
+        button {
+            background: linear-gradient(90deg, #6ca0dc, #3b8beb);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 2.2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(60, 120, 216, 0.08);
+            transition: background 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #3b8beb, #6ca0dc);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .nav-links {
+            margin-top: 2rem;
+        }
+        .nav-links a {
+            color: #3b8beb;
+            text-decoration: none;
+            margin: 0 1rem;
+            font-weight: 500;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 500px) {
+            .container {
+                padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+            }
+            h1 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Конвертація аудіограми в <span style="color:#3b8beb">NHAX</span></h1>
+        <form method="post" enctype="multipart/form-data">
+            <label class="custom-file-label">
+                <input type="file" name="file" accept="image/*" class="file-input" id="fileInput" required>
+                <span id="fileLabelText">Оберіть зображення</span>
+            </label>
+            <div class="file-name" id="fileName"></div>
+            <button type="submit">Конвертувати</button>
+        </form>
+        <div class="nav-links">
+            <a href="/about">Про проект</a>
+            <a href="/about_author">Про автора</a>
+        </div>
+    </div>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileLabelText = document.getElementById('fileLabelText');
+        const fileName = document.getElementById('fileName');
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileLabelText.textContent = 'Файл обрано';
+                fileName.textContent = this.files[0].name;
+            } else {
+                fileLabelText.textContent = 'Оберіть зображення';
+                fileName.textContent = '';
+            }
+        });
+    </script>
+</body>
+</html> 
