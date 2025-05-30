@@ -28,6 +28,16 @@ def index():
             )
     return render_template('index.html')
 
+@app.route('/download-example')
+def download_example():
+    example_path = os.path.join('examples', 'Горохов Дмитро.nhax')
+    return send_file(
+        example_path,
+        mimetype='text/plain',
+        as_attachment=True,
+        download_name='example.nhax'
+    )
+
 @app.route('/about')
 def about():
     return render_template('about.html')
