@@ -27,30 +27,38 @@ def send_static(path):
 
 @app.route('/convert', methods=['POST'])
 def convert():
-    if 'file' not in request.files:
-        return 'No file uploaded', 400
-    
-    file = request.files['file']
-    if file.filename == '':
-        return 'No file selected', 400
-    
-    if file:
-        # Read the image file
-        image_data = file.read()
+    try:
+        if 'file' not in request.files:
+            return 'No file uploaded', 400
         
-        # Convert to NHAX
-        nhax_data = convert_points_to_nhax(extract_points_from_image(image_data))
+        file = request.files['file']
+        if file.filename == '':
+            return 'No file selected', 400
         
-        # Generate filename
-        filename = os.path.splitext(file.filename)[0] + '.nhax'
-        
-        # Return the NHAX file
-        return send_file(
-            io.BytesIO(nhax_data),
-            mimetype='application/octet-stream',
-            as_attachment=True,
-            download_name=filename
-        )
+        if file:
+            # Read the image file
+            image_data = file.read()
+            
+            # Convert to NHAX
+            points = extract_points_from_image(image_data)
+            if not points:
+                return 'No points found in the image', 400
+                
+            nhax_data = convert_points_to_nhax(points)
+            
+            # Generate filename
+            filename = os.path.splitext(file.filename)[0] + '.nhax'
+            
+            # Return the NHAX file
+            return send_file(
+                io.BytesIO(nhax_data.encode('utf-8')),
+                mimetype='application/octet-stream',
+                as_attachment=True,
+                download_name=filename
+            )
+    except Exception as e:
+        app.logger.error(f"Error during conversion: {str(e)}")
+        return f'Error during conversion: {str(e)}', 500
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True, port=5001) 
