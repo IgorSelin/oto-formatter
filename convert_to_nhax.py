@@ -1,17 +1,39 @@
-import cv2
-import numpy as np
 from PIL import Image
+import numpy as np
 
 def extract_points_from_image(image_path):
-    img = cv2.imread(image_path)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Open the image
+    img = Image.open(image_path)
+    # Convert to grayscale
+    img = img.convert('L')
+    # Convert to numpy array
+    img_array = np.array(img)
+    # Threshold the image
+    threshold = 200
+    binary = img_array < threshold
+    
+    # Find points (pixels that are True in binary image)
     points = []
-    for cnt in contours:
-        (x, y, w, h) = cv2.boundingRect(cnt)
-        if 3 < w < 15 and 3 < h < 15:
-            points.append((x, y))
+    height, width = binary.shape
+    for y in range(height):
+        for x in range(width):
+            if binary[y, x]:
+                # Check if this is a local maximum (simple blob detection)
+                is_local_max = True
+                for dy in [-1, 0, 1]:
+                    for dx in [-1, 0, 1]:
+                        if dx == 0 and dy == 0:
+                            continue
+                        ny, nx = y + dy, x + dx
+                        if 0 <= ny < height and 0 <= nx < width:
+                            if binary[ny, nx] and img_array[ny, nx] < img_array[y, x]:
+                                is_local_max = False
+                                break
+                    if not is_local_max:
+                        break
+                if is_local_max:
+                    points.append((x, y))
+    
     return points
 
 def convert_points_to_nhax(points, output_path):
