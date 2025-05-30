@@ -1,23 +1,31 @@
 from flask import Flask, render_template, request, send_file
 import os
 from convert_to_nhax import extract_points_from_image, convert_points_to_nhax
+import io
 
 app = Flask(__name__)
-
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         file = request.files['file']
         if file:
-            image_path = os.path.join(UPLOAD_FOLDER, file.filename)
-            file.save(image_path)
-            points = extract_points_from_image(image_path)
-            nhax_path = os.path.join(UPLOAD_FOLDER, file.filename + '.nhax')
-            convert_points_to_nhax(points, nhax_path)
-            return send_file(nhax_path, as_attachment=True)
+            # Read file data into memory
+            file_data = file.read()
+            # Process the image
+            points = extract_points_from_image(file_data)
+            # Convert to NHAX format
+            nhax_data = convert_points_to_nhax(points)
+            # Create in-memory file
+            nhax_file = io.BytesIO(nhax_data.encode())
+            nhax_file.seek(0)
+            # Send the file
+            return send_file(
+                nhax_file,
+                mimetype='text/plain',
+                as_attachment=True,
+                download_name=f"{file.filename}.nhax"
+            )
     return render_template('index.html')
 
 @app.route('/about')

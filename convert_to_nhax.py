@@ -1,9 +1,10 @@
 from PIL import Image
 import numpy as np
+import io
 
-def extract_points_from_image(image_path):
-    # Open the image
-    img = Image.open(image_path)
+def extract_points_from_image(image_data):
+    # Open the image from bytes
+    img = Image.open(io.BytesIO(image_data))
     # Convert to grayscale
     img = img.convert('L')
     # Convert to numpy array
@@ -36,8 +37,10 @@ def extract_points_from_image(image_path):
     
     return points
 
-def convert_points_to_nhax(points, output_path):
-    with open(output_path, 'w') as f:
-        f.write("NHAX_FORMAT\n")
-        for x, y in points:
-            f.write(f"{x},{y}\n") 
+def convert_points_to_nhax(points):
+    # Create in-memory file
+    output = io.StringIO()
+    output.write("NHAX_FORMAT\n")
+    for x, y in points:
+        output.write(f"{x},{y}\n")
+    return output.getvalue() 
