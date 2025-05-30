@@ -1,42 +1,13 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, send_from_directory
 import os
 from convert_to_nhax import extract_points_from_image, convert_points_to_nhax
 import io
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    if request.method == 'POST':
-        file = request.files['file']
-        if file:
-            # Read file data into memory
-            file_data = file.read()
-            # Process the image
-            points = extract_points_from_image(file_data)
-            # Convert to NHAX format
-            nhax_data = convert_points_to_nhax(points)
-            # Create in-memory file
-            nhax_file = io.BytesIO(nhax_data.encode())
-            nhax_file.seek(0)
-            # Send the file
-            return send_file(
-                nhax_file,
-                mimetype='text/plain',
-                as_attachment=True,
-                download_name=f"{file.filename}.nhax"
-            )
     return render_template('index.html')
-
-@app.route('/download-example')
-def download_example():
-    example_path = os.path.join('examples', 'Горохов Дмитро.nhax')
-    return send_file(
-        example_path,
-        mimetype='text/plain',
-        as_attachment=True,
-        download_name='example.nhax'
-    )
 
 @app.route('/about')
 def about():
@@ -45,6 +16,41 @@ def about():
 @app.route('/about_author')
 def about_author():
     return render_template('about_author.html')
+
+@app.route('/download-example')
+def download_example():
+    return send_file('examples/Горохов Дмитро.nhax', as_attachment=True)
+
+@app.route('/static/<path:path>')
+def send_static(path):
+    return send_from_directory('static', path)
+
+@app.route('/convert', methods=['POST'])
+def convert():
+    if 'file' not in request.files:
+        return 'No file uploaded', 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return 'No file selected', 400
+    
+    if file:
+        # Read the image file
+        image_data = file.read()
+        
+        # Convert to NHAX
+        nhax_data = convert_points_to_nhax(extract_points_from_image(image_data))
+        
+        # Generate filename
+        filename = os.path.splitext(file.filename)[0] + '.nhax'
+        
+        # Return the NHAX file
+        return send_file(
+            io.BytesIO(nhax_data),
+            mimetype='application/octet-stream',
+            as_attachment=True,
+            download_name=filename
+        )
 
 if __name__ == '__main__':
     app.run(debug=True) 
